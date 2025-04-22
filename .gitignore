@@ -92,3 +92,4 @@ backup.py
 backup copy.py
 backup copy 2.py
 
+.streamlit/secrets.toml
