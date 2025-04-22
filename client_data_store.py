@@ -2,58 +2,6 @@ import streamlit as st
 from github import Github
 from datetime import datetime
 import os
-import base64
-
-def set_custom_style(background_image_path, sidebar_image_path):
-    with open(background_image_path, "rb") as image:
-        encoded = base64.b64encode(image.read()).decode()
-    with open(sidebar_image_path, "rb") as sidebar_img:
-        sidebar_encoded = base64.b64encode(sidebar_img.read()).decode()
-
-    css = f"""
-    <style>
-    .stApp {{
-        background-image: url("data:image/png;base64,{encoded}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-        background-attachment: fixed;
-    }}
-
-    [data-testid=stSidebar] {{
-        background-image: url("data:image/png;base64,{sidebar_encoded}");
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
-    }}
-
-    .stSidebar .sidebar-content {{
-        background-color: rgba(255, 255, 255, 0.8) !important;
-        backdrop-filter: blur(5px);
-        padding: 1rem;
-        border-radius: 10px;
-    }}
-
-    .main {{
-        background-color: rgba(255, 255, 255, 0.9);
-        padding: 2rem;
-        border-radius: 10px;
-        margin: 2rem;
-    }}
-    </style>
-    """
-    st.markdown(css, unsafe_allow_html=True)
-
-# Set page configuration
-st.set_page_config(
-    page_title="Mr.okey life data Upload Portal",
-    page_icon="📊",
-    layout="wide",
-    initial_sidebar_state="expanded"
-)
-
-# Set custom style
-set_custom_style("assets/background.png", "assets/sidebar.png")
 
 # Get GitHub token from environment variable
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
