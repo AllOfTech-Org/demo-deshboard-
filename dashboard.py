@@ -778,11 +778,15 @@ def main():
     text_sales = create_text_container(TEXT_CONFIG['sales_trend']['title'], TEXT_CONFIG['sales_trend']['content'], TEXT_CONFIG['sales_trend']['advice']) if show_suggestions else ""
     show_line_chart(sales_data, metrics_data['currency_symbol'], text_sales)
 
-    text_customer_insights = create_text_container(TEXT_CONFIG['customer_insights']['title'], TEXT_CONFIG['customer_insights']['content'], TEXT_CONFIG['customer_insights']['advice']) if show_suggestions else ""
-    show_customer_insights(customer_data, metrics_data['currency_symbol'], text_customer_insights)
+    # Only show customer insights and growth graphs for periods longer than 14 days
+    if date_range_option not in ["Last 7 Days", "Last 14 Days"]:
+        text_customer_insights = create_text_container(TEXT_CONFIG['customer_insights']['title'], TEXT_CONFIG['customer_insights']['content'], TEXT_CONFIG['customer_insights']['advice']) if show_suggestions else ""
+        show_customer_insights(customer_data, metrics_data['currency_symbol'], text_customer_insights)
 
-    text_growth = create_text_container(TEXT_CONFIG['growth']['title'], TEXT_CONFIG['growth']['content'], TEXT_CONFIG['growth']['advice']) if show_suggestions else ""
-    show_customer_growth_and_avg_order_value(monthly_data, metrics_data['currency_symbol'], text_growth)
+        text_growth = create_text_container(TEXT_CONFIG['growth']['title'], TEXT_CONFIG['growth']['content'], TEXT_CONFIG['growth']['advice']) if show_suggestions else ""
+        show_customer_growth_and_avg_order_value(monthly_data, metrics_data['currency_symbol'], text_growth)
+    else:
+        st.info("Customer insights and growth analysis are only available for periods longer than 14 days.")
 
 if __name__ == '__main__':
     main()
