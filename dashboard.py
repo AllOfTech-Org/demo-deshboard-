@@ -305,13 +305,9 @@ def show_line_chart(sales_data, currency_symbol, text_content=""):
             fig,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
         st.markdown(text_content, unsafe_allow_html=True)
@@ -339,13 +335,9 @@ def show_order_source_and_top_products(order_data, product_data, currency_symbol
             fig1,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -369,13 +361,9 @@ def show_order_source_and_top_products(order_data, product_data, currency_symbol
             fig2,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -411,13 +399,9 @@ def show_customer_growth_and_avg_order_value(monthly_data, currency_symbol, text
             fig1,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -436,13 +420,9 @@ def show_customer_growth_and_avg_order_value(monthly_data, currency_symbol, text
             fig2,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -476,13 +456,9 @@ def show_category_analysis(category_data, currency_symbol, text_content=""):
             fig1,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
     with col2:
@@ -501,13 +477,9 @@ def show_category_analysis(category_data, currency_symbol, text_content=""):
             fig2,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -539,13 +511,9 @@ def show_inventory_analysis(inventory_data, currency_symbol, text_content=""):
             fig1,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
     with col2:
@@ -569,13 +537,9 @@ def show_inventory_analysis(inventory_data, currency_symbol, text_content=""):
             fig2,
             use_container_width=True,
             config={
-                "scrollZoom": False,
-                "displayModeBar": False,
-                "doubleClick": False,
+                "displayModeBar": True,
                 "displaylogo": False,
-                "modeBarButtonsToRemove": [
-                    "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-                ]
+                "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
         )
 
@@ -610,13 +574,9 @@ def show_profitability_analysis(profit_data, currency_symbol, text_content=""):
         fig,
         use_container_width=True,
         config={
-            "scrollZoom": False,
-            "displayModeBar": False,
-            "doubleClick": False,
+            "displayModeBar": True,
             "displaylogo": False,
-            "modeBarButtonsToRemove": [
-                "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-            ]
+            "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
         }
     )
 
@@ -650,13 +610,9 @@ def show_customer_insights(customer_data, currency_symbol, text_content=""):
         fig,
         use_container_width=True,
         config={
-            "scrollZoom": False,
-            "displayModeBar": False,
-            "doubleClick": False,
+            "displayModeBar": True,
             "displaylogo": False,
-            "modeBarButtonsToRemove": [
-                "zoom2d", "select2d", "lasso2d", "autoScale2d", "resetScale2d"
-            ]
+            "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
         }
     )
 
