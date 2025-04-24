@@ -662,7 +662,7 @@ def main():
                 "Last Year",
                 "Custom Range"
             ],
-            index=0
+            index=4
         )
         
         # Calculate date ranges based on selection
