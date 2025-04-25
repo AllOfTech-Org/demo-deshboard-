@@ -2,6 +2,8 @@ import streamlit as st
 from github import Github
 from datetime import datetime
 import os
+import pandas as pd
+import io
 
 # Get GitHub token from environment variable
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
@@ -39,11 +41,36 @@ except Exception:
 
 st.title(f"📤 {name} Upload Portal")
 
-uploaded_file = st.file_uploader("Upload your data file (CSV)", type="csv")
+# Allow multiple file formats
+uploaded_file = st.file_uploader("Upload your data file", type=['csv', 'xlsx', 'xls', 'txt'])
 
 if uploaded_file and st.button("Upload to Dashboard"):
     try:
-        content = uploaded_file.read().decode("utf-8")
+        # Get file extension
+        file_extension = uploaded_file.name.split('.')[-1].lower()
+        
+        # Read file based on extension
+        if file_extension == 'csv':
+            df = pd.read_csv(uploaded_file)
+        elif file_extension in ['xlsx', 'xls']:
+            df = pd.read_excel(uploaded_file)
+        elif file_extension == 'txt':
+            df = pd.read_csv(uploaded_file, sep='\t')
+        else:
+            st.error("Unsupported file format")
+            st.stop()
+            
+        # Show data preview
+        st.write("Data Preview (First 5 rows):")
+        st.dataframe(df.head())
+        
+        # Show data info
+        st.write("Data Information:")
+        st.write(f"Total Rows: {len(df)}")
+        st.write(f"Total Columns: {len(df.columns)}")
+        
+        # Convert the dataframe back to CSV string
+        content = df.to_csv(index=False)
         
         # Get current date in the format "12 May 2025"
         current_date = datetime.now().strftime("%d %B %Y")
