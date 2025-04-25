@@ -305,7 +305,7 @@ def show_line_chart(sales_data, currency_symbol, text_content=""):
             fig,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -335,7 +335,7 @@ def show_order_source_and_top_products(order_data, product_data, currency_symbol
             fig1,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -361,7 +361,7 @@ def show_order_source_and_top_products(order_data, product_data, currency_symbol
             fig2,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -399,7 +399,7 @@ def show_customer_growth_and_avg_order_value(monthly_data, currency_symbol, text
             fig1,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -420,7 +420,7 @@ def show_customer_growth_and_avg_order_value(monthly_data, currency_symbol, text
             fig2,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -456,7 +456,7 @@ def show_category_analysis(category_data, currency_symbol, text_content=""):
             fig1,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -477,7 +477,7 @@ def show_category_analysis(category_data, currency_symbol, text_content=""):
             fig2,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -511,7 +511,7 @@ def show_inventory_analysis(inventory_data, currency_symbol, text_content=""):
             fig1,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -537,7 +537,7 @@ def show_inventory_analysis(inventory_data, currency_symbol, text_content=""):
             fig2,
             use_container_width=True,
             config={
-                "displayModeBar": True,
+                "displayModeBar": False,
                 "displaylogo": False,
                 "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
             }
@@ -574,7 +574,7 @@ def show_profitability_analysis(profit_data, currency_symbol, text_content=""):
         fig,
         use_container_width=True,
         config={
-            "displayModeBar": True,
+            "displayModeBar": False,
             "displaylogo": False,
             "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
         }
@@ -610,7 +610,7 @@ def show_customer_insights(customer_data, currency_symbol, text_content=""):
         fig,
         use_container_width=True,
         config={
-            "displayModeBar": True,
+            "displayModeBar": False,
             "displaylogo": False,
             "modeBarButtonsToAdd": ["downloadImage", "fullscreen"]
         }
