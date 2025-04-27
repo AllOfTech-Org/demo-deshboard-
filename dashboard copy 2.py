@@ -74,7 +74,7 @@ def create_text_container(title, content, advice):
 # Set page configuration
 st.set_page_config(
     page_title="Live Shopping  Dashboard",
-    page_icon="images/logo.png",
+    page_icon="images/logo1.png",
     layout="wide",
 )
 
@@ -631,7 +631,7 @@ def main():
 
     with st.sidebar:
         st.markdown('<div class="sidebar-logo-container">', unsafe_allow_html=True)
-        logo_encoded = base64.b64encode(open("images/logo.png", "rb").read()).decode()
+        logo_encoded = base64.b64encode(open("images/logo1.png", "rb").read()).decode()
         st.markdown(f'<img src="data:image/png;base64,{logo_encoded}" class="sidebar-logo"/>', unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True)
         st.markdown("<hr>", unsafe_allow_html=True)
