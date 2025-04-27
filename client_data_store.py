@@ -1,20 +1,34 @@
 import streamlit as st
 from github import Github
+
 from datetime import datetime
 import os
 import pandas as pd
 import io
+import traceback
 
 # Get GitHub token from environment variable
 GITHUB_TOKEN = os.getenv('GITHUB_TOKEN')
+
+# Validate GitHub token
+if not GITHUB_TOKEN:
+    st.error("GitHub token not found. Please set the GITHUB_TOKEN environment variable.")
+    st.stop()
 
 # Name and folder settings
 name = "Mr.okey life data"
 folder = name
 
 # GitHub login with your personal token
-g = Github(GITHUB_TOKEN)
-user = g.get_user()
+try:
+    g = Github(GITHUB_TOKEN)
+    user = g.get_user()
+    # Test the token by making a simple API call
+    user.get_repos()
+    st.success("GitHub token is valid and working!")
+except Exception as e:
+    st.error(f"GitHub token validation failed: {str(e)}")
+    st.stop()
 
 # Repository name
 repo_name = "client-dashboards-data"
@@ -72,6 +86,10 @@ if uploaded_file and st.button("Upload to Dashboard"):
         # Convert the dataframe back to CSV string
         content = df.to_csv(index=False)
         
+        # Calculate file size
+        file_size_kb = len(content) / 1024
+        st.write(f"File size: {file_size_kb:.2f} KB")
+        
         # Get current date in the format "12 May 2025"
         current_date = datetime.now().strftime("%d %B %Y")
         
@@ -120,14 +138,24 @@ if uploaded_file and st.button("Upload to Dashboard"):
                     content=""
                 )
             
-            # Create the new file
-            repo.create_file(
-                path=upload_path,
-                message=f"New data upload on {datetime.now()}",
-                content=content
-            )
+            # Create progress bar
+            progress_text = "Uploading data..."
+            progress_bar = st.progress(0)
             
-            st.success(f"✅ File successfully uploaded as: {new_filename}")
+            # Create the new file with detailed error handling
+            try:
+                repo.create_file(
+                    path=upload_path,
+                    message=f"New data upload on {datetime.now()} - {len(df)} rows",
+                    content=content
+                )
+                progress_bar.progress(1.0)
+                st.success(f"✅ File successfully uploaded with all {len(df)} rows as: {new_filename}")
+            except Exception as e:
+                st.error(f"GitHub API Error: {str(e)}")
+                st.write("Detailed error information:")
+                st.code(traceback.format_exc())
+                st.stop()
             
             # Show list of all files in the directory
             try:
@@ -142,7 +170,11 @@ if uploaded_file and st.button("Upload to Dashboard"):
                 
         except Exception as e:
             st.error(f"Failed to create file: {str(e)}")
+            st.write("Detailed error information:")
+            st.code(traceback.format_exc())
             st.stop()
             
     except Exception as e:
         st.error(f"Failed to upload file: {str(e)}")
+        st.write("Detailed error information:")
+        st.code(traceback.format_exc())
