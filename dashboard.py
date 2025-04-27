@@ -694,7 +694,7 @@ def main():
             default=categories
         )
 
-    st.markdown('<h1 style="text-align: center; color: black;">Mr. Life Okey Clothing Brand Dashboard</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 style="text-align: center; color: black;">Live shoping Clothing Brand Dashboard</h1>', unsafe_allow_html=True)
 
     # Apply filters to the data
     processor.apply_filters(date_range=date_range, categories=selected_categories)
