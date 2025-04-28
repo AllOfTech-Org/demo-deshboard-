@@ -16,7 +16,7 @@ if not GITHUB_TOKEN:
     st.stop()
 
 # Name and folder settings
-name = "Mr.okey life data"
+name = "Live Shopingdata"
 folder = name
 
 # GitHub login with your personal token
