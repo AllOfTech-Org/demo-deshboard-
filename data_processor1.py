@@ -55,11 +55,16 @@ class DashboardDataProcessor:
         def safe_growth(curr, prev):
             return ((curr - prev) / prev) * 100 if prev else 0
 
+        current_return_rate = (current['returns'].sum() / current['sales'].sum()) * 100 if current['sales'].sum() > 0 else 0
+        previous_return_rate = (previous['returns'].sum() / previous['sales'].sum()) * 100 if previous['sales'].sum() > 0 else 0
+        return_rate_change = safe_growth(current_return_rate, previous_return_rate)
+
         return {
             'total_sales': total_sales,
             'avg_daily_sales': avg_daily_sales,
             'total_customers': total_customers,
             'return_rate': round(return_rate, 2),
+            'return_rate_change': round(return_rate_change, 2),
             'sales_growth': round(safe_growth(current['sales'].sum(), previous['sales'].sum()), 1),
             'daily_sales_growth': round(safe_growth(current['sales'].mean(), previous['sales'].mean()), 1),
             'customer_growth': round(safe_growth(current['new_customers'].sum(), previous['new_customers'].sum()), 1),
