@@ -77,7 +77,7 @@ target/
 
 # exclude data from source control by default
 test_environment.py
-
+client_data_store copy.py
 # Mac OS-specific storage files
 .DS_Store
 data_processor copy.py
