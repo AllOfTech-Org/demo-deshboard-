@@ -6,7 +6,7 @@ import base64
 import numpy as np
 import json
 import os
-from data_processor import DashboardDataProcessor
+from data_processor1 import DashboardDataProcessor
 
 # Load text configuration from JSON file
 def load_text_config():
