@@ -4,13 +4,22 @@ from github import Github
 import os
 import base64
 import io
+import requests
+from io import StringIO
+import streamlit as st
 
+token = st.secrets["DATA_TOKEN"]
 class DashboardDataProcessor:
-    def __init__(self, raw_url='https://raw.githubusercontent.com/AllOfTech-Org/client-dashboards-data/refs/heads/main/data/Your_Company/dashboard_data.csv?token=GHSAT0AAAAAADAGSXHY4TLJF63CGWTLDJLU2AVURGA'):
-        try:
-            self.df = pd.read_csv(raw_url)
-        except Exception as e:
-            raise FileNotFoundError(f"Failed to load file from raw GitHub URL: {str(e)}")
+    def __init__(self, url = f'https://api.github.com/repos/AllOfTech-Org/client-dashboards-data/contents/data/Your_Company/dashboard_data.csv'):
+        headers = {
+        'Authorization': f'token {token}',
+        'Accept': 'application/vnd.github.v3.raw'
+        }
+        response = requests.get(url, headers=headers)
+        csv_content = StringIO(response.text)
+        # Load the CSV into a pandas DataFrame
+        self.df = pd.read_csv(csv_content)
+
 
         self.df['date'] = pd.to_datetime(self.df.get('date', pd.Series([], dtype='datetime64[ns]')))
         self.currency = 'USD'
