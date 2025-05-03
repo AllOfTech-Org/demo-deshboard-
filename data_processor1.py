@@ -6,28 +6,12 @@ import base64
 import io
 
 class DashboardDataProcessor:
-    def __init__(self, repo_name='client-dashboards-data', file_path='data/Your Company/dashboard_data.csv'):
-        GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
-        if not GITHUB_TOKEN:
-            raise ValueError("GITHUB_TOKEN not found in environment variables.")
-        
-        g = Github(GITHUB_TOKEN)
-        user = g.get_user()
-        repo = user.get_repo(repo_name)
-        
+    def __init__(self, raw_url='https://raw.githubusercontent.com/AllOfTech-Org/client-dashboards-data/refs/heads/main/data/Your_Company/dashboard_data.csv?token=GHSAT0AAAAAADAGSXHY4TLJF63CGWTLDJLU2AVURGA'):
         try:
-            file_content = repo.get_contents(file_path)
-            decoded = base64.b64decode(file_content.content)
-            decoded_str = decoded.decode('utf-8', errors='ignore')
-            
-            if not decoded_str.strip():
-                raise FileNotFoundError("Uploaded file is empty.")
-            
-            self.df = pd.read_csv(io.StringIO(decoded_str))
-            
+            self.df = pd.read_csv(raw_url)
         except Exception as e:
-            raise FileNotFoundError(f"Failed to load file from GitHub: {str(e)}")
-        
+            raise FileNotFoundError(f"Failed to load file from raw GitHub URL: {str(e)}")
+
         self.df['date'] = pd.to_datetime(self.df.get('date', pd.Series([], dtype='datetime64[ns]')))
         self.currency = 'USD'
         self.currency_symbol = '$'
@@ -36,177 +20,106 @@ class DashboardDataProcessor:
 
     def set_currency(self, currency):
         self.currency = currency
-        self.currency_symbol = {
-            'USD': '$',
-            'BDT': '৳'
-        }.get(currency, '$')
+        self.currency_symbol = {'USD': '$', 'BDT': '৳'}.get(currency, '$')
 
     def convert_amount(self, amount):
         return amount * self.exchange_rates.get(self.currency, 1)
 
     def apply_filters(self, date_range=None, categories=None):
         self.filtered_df = self.df.copy()
-
         if date_range:
-            start_date, end_date = date_range
-            self.filtered_df = self.filtered_df[
-                (self.filtered_df['date'] >= pd.to_datetime(start_date)) & 
-                (self.filtered_df['date'] <= pd.to_datetime(end_date))
-            ]
-            
-        if categories and 'category' in self.df.columns:
+            start, end = pd.to_datetime(date_range[0]), pd.to_datetime(date_range[1])
+            self.filtered_df = self.filtered_df[(self.filtered_df['date'] >= start) & (self.filtered_df['date'] <= end)]
+        if categories and 'category' in self.filtered_df.columns:
             self.filtered_df = self.filtered_df[self.filtered_df['category'].isin(categories)]
-    
+
     def get_metrics_data(self):
         latest_date = self.filtered_df['date'].max()
-        latest_data = self.filtered_df[self.filtered_df['date'] == latest_date].iloc[0]
-
         total_sales = self.convert_amount(self.filtered_df['sales'].sum())
         avg_daily_sales = self.convert_amount(self.filtered_df['sales'].mean())
-        total_customers = self.filtered_df.get('new_customers', pd.Series([])).sum()
-        return_rate = (self.filtered_df['returns'].sum() / self.filtered_df['sales'].sum()) * 100 if 'returns' in self.df.columns else 0
+        total_customers = self.filtered_df['new_customers'].sum()
+        return_rate = (self.filtered_df['returns'].sum() / self.filtered_df['sales'].sum()) * 100 if self.filtered_df['sales'].sum() > 0 else 0
 
-        current_period = self.filtered_df[self.filtered_df['date'] >= (latest_date - pd.Timedelta(days=30))]
-        previous_period = self.filtered_df[
-            (self.filtered_df['date'] >= (latest_date - pd.Timedelta(days=60))) & 
-            (self.filtered_df['date'] < (latest_date - pd.Timedelta(days=30)))
-        ]
+        current = self.filtered_df[self.filtered_df['date'] >= latest_date - pd.Timedelta(days=30)]
+        previous = self.filtered_df[(self.filtered_df['date'] >= latest_date - pd.Timedelta(days=60)) & (self.filtered_df['date'] < latest_date - pd.Timedelta(days=30))]
 
-        sales_growth = ((current_period['sales'].sum() - previous_period['sales'].sum()) / previous_period['sales'].sum()) * 100 if len(previous_period) > 0 else 0
-        daily_sales_growth = ((current_period['sales'].mean() - previous_period['sales'].mean()) / previous_period['sales'].mean()) * 100 if len(previous_period) > 0 else 0
-        customer_growth = ((current_period['new_customers'].sum() - previous_period['new_customers'].sum()) / previous_period['new_customers'].sum()) * 100 if len(previous_period) > 0 else 0
+        def safe_growth(curr, prev):
+            return ((curr - prev) / prev) * 100 if prev else 0
 
         return {
             'total_sales': total_sales,
             'avg_daily_sales': avg_daily_sales,
             'total_customers': total_customers,
-            'return_rate': return_rate,
-            'sales_growth': round(sales_growth, 1),
-            'daily_sales_growth': round(daily_sales_growth, 1),
-            'customer_growth': round(customer_growth, 1),
+            'return_rate': round(return_rate, 2),
+            'sales_growth': round(safe_growth(current['sales'].sum(), previous['sales'].sum()), 1),
+            'daily_sales_growth': round(safe_growth(current['sales'].mean(), previous['sales'].mean()), 1),
+            'customer_growth': round(safe_growth(current['new_customers'].sum(), previous['new_customers'].sum()), 1),
             'currency_symbol': self.currency_symbol
         }
-    
+
     def get_sales_trend_data(self):
-        daily_data = self.filtered_df.groupby('date').agg({
-            'sales': 'sum',
-            'returns': 'sum'
-        }).reset_index()
+        daily = self.filtered_df.groupby('date')[['sales', 'returns']].sum().reset_index()
+        daily['sales'] = daily['sales'].apply(self.convert_amount)
+        daily['returns'] = daily['returns'].apply(self.convert_amount)
+        return daily
 
-        daily_data['sales'] = daily_data['sales'].apply(self.convert_amount)
-        daily_data['returns'] = daily_data['returns'].apply(self.convert_amount)
-
-        return daily_data
-    
-    def get_category_data(self):
-        category_data = self.filtered_df.groupby('category').agg({
-            'sales': 'sum',
-            'inventory': 'mean',
-            'profit_margin': 'mean',
-            'profit': 'sum'
-        }).reset_index()
-
-        category_data['sales'] = category_data['sales'].apply(self.convert_amount)
-        category_data['profit'] = category_data['profit'].apply(self.convert_amount)
-
-        return category_data
+    def get_order_source_data(self):
+        order_source_data = self.filtered_df.groupby('order_source').agg({'sales': 'sum'}).reset_index()
+        order_source_data['sales'] = order_source_data['sales'].apply(self.convert_amount)
+        return order_source_data
 
     def get_product_data(self):
-        product_data = self.filtered_df.groupby('product_id').agg({
-            'sales': 'sum',
-            'category': 'first'
-        }).reset_index()
-
+        product_data = self.filtered_df.groupby('product_id').agg({'sales': 'sum', 'category': 'first'}).reset_index()
         product_data['sales'] = product_data['sales'].apply(self.convert_amount)
-        top_products = product_data.sort_values('sales', ascending=False).head(10)
+        return product_data.sort_values('sales', ascending=False).head(10)
 
-        return top_products
-
-    
     def get_category_data(self):
-        """Prepare data for category analysis"""
-        # Group by category and calculate metrics
-        category_data = self.filtered_df.groupby('category').agg({
-            'sales': 'sum',
-            'inventory': 'mean',
-            'profit_margin': 'mean',
-            'profit': 'sum'
+        cat = self.filtered_df.groupby('category').agg({
+            'sales': 'sum', 'inventory': 'mean', 'profit_margin': 'mean', 'profit': 'sum'
         }).reset_index()
-        
-        # Convert sales and profit to selected currency
-        category_data['sales'] = category_data['sales'].apply(self.convert_amount)
-        category_data['profit'] = category_data['profit'].apply(self.convert_amount)
-        
-        return category_data
-    
+        cat['sales'] = cat['sales'].apply(self.convert_amount)
+        cat['profit'] = cat['profit'].apply(self.convert_amount)
+        return cat
+
     def get_inventory_data(self):
-        """Prepare data for inventory analysis"""
-        # Use the same category data but with additional inventory metrics
-        inventory_data = self.filtered_df.groupby('category').agg({
-            'inventory': 'mean',
-            'sales': 'sum',
-            'profit_margin': 'mean'
+        inv = self.filtered_df.groupby('category').agg({
+            'inventory': 'mean', 'sales': 'sum', 'profit_margin': 'mean'
         }).reset_index()
-        
-        # Convert sales to selected currency
-        inventory_data['sales'] = inventory_data['sales'].apply(self.convert_amount)
-        
-        return inventory_data
-    
+        inv['sales'] = inv['sales'].apply(self.convert_amount)
+        return inv
+
     def get_customer_growth_data(self):
-        """Prepare data for customer growth analysis"""
-        # Group by month and calculate metrics
-        monthly_data = self.filtered_df.groupby('month').agg({
-            'new_customers': 'sum',
-            'sales': 'sum',
-            'avg_order_value': 'mean'
+        df = self.filtered_df.groupby('month').agg({
+            'new_customers': 'sum', 'sales': 'sum', 'avg_order_value': 'mean'
         }).reset_index()
-        
-        # Convert sales and avg_order_value to selected currency
-        monthly_data['sales'] = monthly_data['sales'].apply(self.convert_amount)
-        monthly_data['avg_order_value'] = monthly_data['avg_order_value'].apply(self.convert_amount)
-        
-        return monthly_data
-    
+        df['sales'] = df['sales'].apply(self.convert_amount)
+        df['avg_order_value'] = df['avg_order_value'].apply(self.convert_amount)
+        return df
+
     def get_profitability_data(self):
-        """Prepare data for profitability analysis"""
-        # Group by category and calculate profit metrics
-        profit_data = self.filtered_df.groupby('category').agg({
-            'sales': 'sum',
-            'profit': 'sum',
-            'profit_margin': 'mean'
+        df = self.filtered_df.groupby('category').agg({
+            'sales': 'sum', 'profit': 'sum', 'profit_margin': 'mean'
         }).reset_index()
-        
-        # Convert sales and profit to selected currency
-        profit_data['sales'] = profit_data['sales'].apply(self.convert_amount)
-        profit_data['profit'] = profit_data['profit'].apply(self.convert_amount)
-        
-        return profit_data
-    
+        df['sales'] = df['sales'].apply(self.convert_amount)
+        df['profit'] = df['profit'].apply(self.convert_amount)
+        return df
+
     def get_customer_insights_data(self):
-        """Prepare data for customer insights"""
-        # Group by month and calculate customer metrics
-        customer_data = self.filtered_df.groupby('month').agg({
-            'new_customers': 'sum',
-            'avg_order_value': 'mean'
+        df = self.filtered_df.groupby('month').agg({
+            'new_customers': 'sum', 'avg_order_value': 'mean'
         }).reset_index()
-        
-        # Convert avg_order_value to selected currency
-        customer_data['avg_order_value'] = customer_data['avg_order_value'].apply(self.convert_amount)
-        
-        return customer_data
+        df['avg_order_value'] = df['avg_order_value'].apply(self.convert_amount)
+        return df
 
 # Example usage
 if __name__ == "__main__":
     processor = DashboardDataProcessor()
-    
-    # Test each data preparation method
     print("Metrics Data:", processor.get_metrics_data())
-    print("\nSales Trend Data Shape:", processor.get_sales_trend_data().shape)
-    print("\nOrder Source Data Shape:", processor.get_order_source_data().shape)
-    print("\nProduct Data Shape:", processor.get_product_data().shape)
-    print("\nCategory Data Shape:", processor.get_category_data().shape)
-    print("\nInventory Data Shape:", processor.get_inventory_data().shape)
-    print("\nCustomer Growth Data Shape:", processor.get_customer_growth_data().shape)
-    print("\nProfitability Data Shape:", processor.get_profitability_data().shape)
-    print("\nCustomer Insights Data Shape:", processor.get_customer_insights_data().shape) 
+    print("\nSales Trend:", processor.get_sales_trend_data().head())
+    print("\nOrder Source:", processor.get_order_source_data().head())
+    print("\nTop Products:", processor.get_product_data().head())
+    print("\nCategories:", processor.get_category_data().head())
+    print("\nInventory Info:", processor.get_inventory_data().head())
+    print("\nCustomer Growth:", processor.get_customer_growth_data().head())
+    print("\nProfitability:", processor.get_profitability_data().head())
+    print("\nCustomer Insights:", processor.get_customer_insights_data().head())
