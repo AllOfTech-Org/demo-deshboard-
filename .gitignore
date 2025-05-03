@@ -76,11 +76,11 @@ target/
 .ipynb_checkpoints/
 
 # exclude data from source control by default
-
+test_environment.py
 
 # Mac OS-specific storage files
 .DS_Store
-
+data_processor copy.py
 # vim
 *.swp
 *.swo
