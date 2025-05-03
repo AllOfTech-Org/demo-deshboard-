@@ -22,7 +22,13 @@ class DashboardDataProcessor:
         try:
             file_content = repo.get_contents(file_path)
             decoded = base64.b64decode(file_content.content)
-            self.df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+            decoded_str = decoded.decode('utf-8')
+
+            if not decoded_str.strip():
+                raise FileNotFoundError("Uploaded file is empty.")
+
+            self.df = pd.read_csv(io.StringIO(decoded_str))
+
         except Exception as e:
             raise FileNotFoundError(f"Failed to load file from GitHub: {str(e)}")
         
