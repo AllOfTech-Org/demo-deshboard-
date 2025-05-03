@@ -1,17 +1,37 @@
 import pandas as pd
 import numpy as np
 
+from github import Github
+import os
+import base64
+import io
+
 class DashboardDataProcessor:
-    def __init__(self, data_path='data/dashboard_data.csv'):
-        self.df = pd.read_csv(data_path)
+    def __init__(self, repo_name='client-dashboards-data', file_path='data/Your Company/dashboard_data.csv'):
+        # GitHub token from environment
+        GITHUB_TOKEN = os.getenv("GITHUB_TOKEN")
+        if not GITHUB_TOKEN:
+            raise ValueError("GITHUB_TOKEN not found in environment variables.")
+        
+        # Authenticate GitHub
+        g = Github(GITHUB_TOKEN)
+        user = g.get_user()
+        repo = user.get_repo(repo_name)
+        
+        # Get file content from repo
+        try:
+            file_content = repo.get_contents(file_path)
+            decoded = base64.b64decode(file_content.content)
+            self.df = pd.read_csv(io.StringIO(decoded.decode('utf-8')))
+        except Exception as e:
+            raise FileNotFoundError(f"Failed to load file from GitHub: {str(e)}")
+        
         self.df['date'] = pd.to_datetime(self.df['date'])
-        self.filtered_df = self.df.copy()  # Initialize filtered dataframe
-        self.currency = 'USD'  # Default currency
-        self.currency_symbol = '$'  # Default currency symbol
-        self.exchange_rates = {
-            'USD': 1.0,
-            'BDT': 110.0  # 1 USD = 110 BDT (approximate rate)
-        }
+        self.filtered_df = self.df.copy()
+        self.currency = 'USD'
+        self.currency_symbol = '$'
+        self.exchange_rates = {'USD': 1.0, 'BDT': 110.0}
+
         
     def set_currency(self, currency):
         """Set the currency for display"""
