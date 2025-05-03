@@ -10,22 +10,46 @@ import streamlit as st
 
 token = st.secrets["DATA_TOKEN"]
 class DashboardDataProcessor:
-    def __init__(self, url = f'https://api.github.com/repos/AllOfTech-Org/client-dashboards-data/contents/data/Your_Company/dashboard_data.csv'):
+    def __init__(self, folder_name='Your_Company'):
+        folder_url = f'https://api.github.com/repos/AllOfTech-Org/client-dashboards-data/contents/data/{folder_name}'
+
         headers = {
-        'Authorization': f'token {token}',
-        'Accept': 'application/vnd.github.v3.raw'
+            'Authorization': f'token {token}',
+            'Accept': 'application/vnd.github.v3+json'
         }
-        response = requests.get(url, headers=headers)
-        csv_content = StringIO(response.text)
-        # Load the CSV into a pandas DataFrame
-        self.df = pd.read_csv(csv_content)
 
+        response = requests.get(folder_url, headers=headers)
+        if response.status_code != 200:
+            raise Exception("Failed to fetch folder content")
 
+        file_list = response.json()
+
+        all_dataframes = []
+
+        for file in file_list:
+            if file['name'].endswith('.csv'):
+                file_url = file['download_url']
+                csv_response = requests.get(file_url, headers=headers)
+                if csv_response.status_code == 200:
+                    csv_content = StringIO(csv_response.text)
+                    df = pd.read_csv(csv_content)
+                    all_dataframes.append(df)
+                else:
+                    print(f"Failed to fetch: {file['name']}")
+
+        if not all_dataframes:
+            raise Exception("No CSV files found in the GitHub folder.")
+
+        self.df = pd.concat(all_dataframes, ignore_index=True)
+
+        # Convert 'date' column to datetime if it exists
         self.df['date'] = pd.to_datetime(self.df.get('date', pd.Series([], dtype='datetime64[ns]')))
         self.currency = 'USD'
         self.currency_symbol = '$'
         self.exchange_rates = {'USD': 1.0, 'BDT': 110.0}
         self.filtered_df = self.df.copy()
+
+
 
     def set_currency(self, currency):
         self.currency = currency
@@ -137,3 +161,4 @@ if __name__ == "__main__":
     print("\nCustomer Growth:", processor.get_customer_growth_data().head())
     print("\nProfitability:", processor.get_profitability_data().head())
     print("\nCustomer Insights:", processor.get_customer_insights_data().head())
+    print(processor.df.shape)
