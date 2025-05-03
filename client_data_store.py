@@ -16,7 +16,7 @@ if not GITHUB_TOKEN:
     st.stop()
 
 # Name and folder settings
-name = "Your Company "
+name = "Your_Company "
 folder = name
 
 # GitHub login with your personal token
