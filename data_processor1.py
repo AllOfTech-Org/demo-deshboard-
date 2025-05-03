@@ -22,7 +22,8 @@ class DashboardDataProcessor:
         try:
             file_content = repo.get_contents(file_path)
             decoded = base64.b64decode(file_content.content)
-            decoded_str = decoded.decode('utf-8')
+            decoded_str = decoded.decode('utf-8', errors='ignore')  # Ignore decoding errors
+
 
             if not decoded_str.strip():
                 raise FileNotFoundError("Uploaded file is empty.")
